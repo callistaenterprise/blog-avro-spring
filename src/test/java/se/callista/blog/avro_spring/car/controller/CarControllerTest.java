@@ -50,7 +50,7 @@ public class CarControllerTest {
   private static final String VIN = "123456789";
   private static final String PLATE_NUMBER = "ABC 123";
 
-  private CarSerDe carSerDe = new CarSerDe();
+  private CarSerDe carSerDe = new CarSerDe(false);
 
   private Car car;
   private byte[] serializedCar;
@@ -73,17 +73,17 @@ public class CarControllerTest {
   @Test
   public void testGetCar() throws Exception {
 
-    mvc.perform(get("/car/" + VIN).accept("application/avro")).andExpect(status().isOk())
-        .andExpect(content().contentType("application/avro"))
+    mvc.perform(get("/car/" + VIN).accept("application/avro+json")).andExpect(status().isOk())
+        .andExpect(content().contentType("application/avro+json"))
         .andExpect(content().bytes(serializedCar));
   }
 
   @Test
   public void testUpdateCar() throws Exception {
 
-    mvc.perform(put("/car/" + VIN).accept("application/avro").contentType("application/avro")
+    mvc.perform(put("/car/" + VIN).accept("application/avro+json").contentType("application/avro+json")
         .content(serializedCar)).andExpect(status().isOk())
-        .andExpect(content().contentType("application/avro"))
+        .andExpect(content().contentType("application/avro+json"))
         .andExpect(content().bytes(serializedCar));
   }
 }

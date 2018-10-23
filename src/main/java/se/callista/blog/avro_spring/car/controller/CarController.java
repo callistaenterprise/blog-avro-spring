@@ -37,13 +37,13 @@ public class CarController {
   @Autowired
   private CarRepository repository;
 
-  @RequestMapping(value = "/car/{VIN}", method = RequestMethod.GET, produces = "application/avro")
+  @RequestMapping(value = "/car/{VIN}", method = RequestMethod.GET, produces = "application/avro+json")
   public Car getCar(@PathVariable("VIN") String VIN) {
     return repository.getCar(VIN);
   }
 
-  @RequestMapping(value = "/car/{VIN}", method = RequestMethod.PUT, consumes = "application/avro",
-      produces = "application/avro")
+  @RequestMapping(value = "/car/{VIN}", method = RequestMethod.PUT, consumes = "application/avro+json",
+      produces = "application/avro+json")
   public Car updateCar(@PathVariable("VIN") String VIN, @RequestBody Car car) {
     repository.updateCar(car);
     return car;

@@ -39,7 +39,7 @@ import se.callista.blog.avro_spring.car.avro.Car;
 public class CarClient {
 
   private static final MediaType APPLICATION_AVRO =
-      new MediaType("application", "avro", Charset.forName("UTF-8"));
+      new MediaType("application", "avro+json", Charset.forName("UTF-8"));
 
   @Autowired
   private RestTemplate restTemplate;
@@ -61,7 +61,7 @@ public class CarClient {
     HttpEntity<Car> entity = new HttpEntity<>(car, headers);
 
     ResponseEntity<Car> result =
-        restTemplate.exchange("/car/" + VIN, HttpMethod.GET, entity, Car.class);
+        restTemplate.exchange("/car/" + VIN, HttpMethod.PUT, entity, Car.class);
     return result.getBody();
   }
 

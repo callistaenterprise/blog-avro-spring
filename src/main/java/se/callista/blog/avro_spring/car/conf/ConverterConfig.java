@@ -24,11 +24,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter;
-
-import se.callista.blog.avro_spring.serde.spring.AvroHttpMessageConverter;
+import se.callista.blog.avro_spring.serde.spring.AvroBinaryHttpMessageConverter;
+import se.callista.blog.avro_spring.serde.spring.AvroJsonHttpMessageConverter;
 
 /**
- * Configuration required to use the AvroHttpMessageConverter.
+ * Configuration required to use the Avro{Binary,Json}HttpMessageConverter.
  * 
  * @author Björn Beskow
  */
@@ -38,13 +38,20 @@ public class ConverterConfig extends WebMvcConfigurerAdapter {
   @Override
   public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
     super.configureMessageConverters(converters);
-    converters.add(new AvroHttpMessageConverter<SpecificRecordBase>());
+    converters.add(new AvroBinaryHttpMessageConverter<SpecificRecordBase>());
+    converters.add(new AvroJsonHttpMessageConverter<SpecificRecordBase>());
   }
 
   @Bean
   public RestTemplate restTemplate(RestTemplateBuilder builder) {
-    return builder.additionalMessageConverters(new AvroHttpMessageConverter<SpecificRecordBase>())
-        .build();
+    // We need to add the AvroJsonHttpMessageConverter before any generic JSON converter,
+    // since the pattern a generic JSON converter also may match. 
+    RestTemplate restTemplate = builder.build();
+    List<HttpMessageConverter<?>> messageConverters = restTemplate.getMessageConverters();
+    messageConverters.add(0, new AvroJsonHttpMessageConverter<SpecificRecordBase>());
+    messageConverters.add(0, new AvroBinaryHttpMessageConverter<SpecificRecordBase>());
+    restTemplate.setMessageConverters(messageConverters);
+    return restTemplate;
   }
 
 }

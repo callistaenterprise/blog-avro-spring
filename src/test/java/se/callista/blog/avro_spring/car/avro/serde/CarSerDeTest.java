@@ -30,12 +30,26 @@ import se.callista.blog.avro_spring.car.avro.Car;
 public class CarSerDeTest {
 
   @Test
-  public void testCarSerDe() throws IOException {
+  public void testNonBinaryCarSerDe() throws IOException {
     Car car1 = new Car();
     car1.setVIN("aVin");
     car1.setPlateNumber("aPlateNumer");
 
-    CarSerDe serde = new CarSerDe();
+    CarSerDe serde = new CarSerDe(false);
+    byte[] bytes = serde.serialize(car1);
+    Car carCopy = serde.deserialize(bytes);
+
+    assert car1 != carCopy;
+    assert car1.equals(carCopy);
+  }
+
+  @Test
+  public void testBinaryCarSerDe() throws IOException {
+    Car car1 = new Car();
+    car1.setVIN("aVin");
+    car1.setPlateNumber("aPlateNumer");
+
+    CarSerDe serde = new CarSerDe(true);
     byte[] bytes = serde.serialize(car1);
     Car carCopy = serde.deserialize(bytes);
 

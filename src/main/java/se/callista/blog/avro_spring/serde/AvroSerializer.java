@@ -19,8 +19,8 @@ package se.callista.blog.avro_spring.serde;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import javax.xml.bind.DatatypeConverter;
-import org.apache.avro.io.BinaryEncoder;
 import org.apache.avro.io.DatumWriter;
+import org.apache.avro.io.Encoder;
 import org.apache.avro.io.EncoderFactory;
 import org.apache.avro.specific.SpecificDatumWriter;
 import org.apache.avro.specific.SpecificRecordBase;
@@ -36,26 +36,40 @@ public class AvroSerializer<T extends SpecificRecordBase> implements Serializer<
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AvroSerializer.class);
 
+  private final boolean useBinaryEncoding;
+  
+  public AvroSerializer(boolean useBinaryEncoding) {
+    this.useBinaryEncoding = useBinaryEncoding;
+  }
+
+  public boolean isUseBinaryEncoding() {
+    return useBinaryEncoding;
+  }
+
   @Override
   public byte[] serialize(T data) throws SerializationException {
     try {
       byte[] result = null;
 
       if (data != null) {
-        LOGGER.debug("data={}:{}", data.getClass().getName(), data);
-
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("data={}:{}", data.getClass().getName(), data);
+        }
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        BinaryEncoder binaryEncoder =
-            EncoderFactory.get().binaryEncoder(byteArrayOutputStream, null);
+        Encoder encoder = useBinaryEncoding ?
+            EncoderFactory.get().binaryEncoder(byteArrayOutputStream, null) :
+            EncoderFactory.get().jsonEncoder(data.getSchema(), byteArrayOutputStream);;
 
         DatumWriter<T> datumWriter = new SpecificDatumWriter<>(data.getSchema());
-        datumWriter.write(data, binaryEncoder);
+        datumWriter.write(data, encoder);
 
-        binaryEncoder.flush();
+        encoder.flush();
         byteArrayOutputStream.close();
 
         result = byteArrayOutputStream.toByteArray();
-        LOGGER.debug("serialized data='{}'", DatatypeConverter.printHexBinary(result));
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("serialized data='{}' ({})", DatatypeConverter.printHexBinary(result), new String(result));
+        }
       }
       return result;
     } catch (IOException e) {

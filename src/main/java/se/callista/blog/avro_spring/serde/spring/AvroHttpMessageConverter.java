@@ -28,7 +28,6 @@ import org.springframework.http.MediaType;
 import org.springframework.http.converter.AbstractHttpMessageConverter;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.http.converter.HttpMessageNotWritableException;
-
 import se.callista.blog.avro_spring.serde.AvroDeserializer;
 import se.callista.blog.avro_spring.serde.AvroSerializer;
 import se.callista.blog.avro_spring.serde.Deserializer;
@@ -42,18 +41,19 @@ import se.callista.blog.avro_spring.serde.Serializer;
  * 
  * @author Björn Beskow
  */
-public class AvroHttpMessageConverter<T> extends AbstractHttpMessageConverter<T> {
+public abstract class AvroHttpMessageConverter<T> extends AbstractHttpMessageConverter<T> {
 
   protected final Logger logger = LoggerFactory.getLogger(getClass());
 
   public static final Charset DEFAULT_CHARSET = Charset.forName("UTF-8");
 
-  private Serializer<SpecificRecordBase> serializer = new AvroSerializer<>();
-  private Deserializer<SpecificRecordBase> deserializer = new AvroDeserializer<>();
+  private Serializer<SpecificRecordBase> serializer;
+  private Deserializer<SpecificRecordBase> deserializer;
 
-  public AvroHttpMessageConverter() {
-    super(new MediaType("application", "avro", DEFAULT_CHARSET),
-        new MediaType("application", "*+avro", DEFAULT_CHARSET));
+  public AvroHttpMessageConverter(boolean useBinaryEncoding, MediaType... supportedMediaTypes) {
+    super(supportedMediaTypes);
+    serializer = new AvroSerializer<>(useBinaryEncoding);
+    deserializer = new AvroDeserializer<>(useBinaryEncoding);
   }
 
   @Override

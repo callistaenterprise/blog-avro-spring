@@ -19,9 +19,7 @@ package se.callista.blog.avro_spring.car.avro.serde;
 import se.callista.blog.avro_spring.car.avro.Car;
 import se.callista.blog.avro_spring.serde.AvroDeserializer;
 import se.callista.blog.avro_spring.serde.AvroSerializer;
-import se.callista.blog.avro_spring.serde.Deserializer;
 import se.callista.blog.avro_spring.serde.SerializationException;
-import se.callista.blog.avro_spring.serde.Serializer;
 
 /**
  * Avro serialization/deserialization for Cars.
@@ -30,8 +28,20 @@ import se.callista.blog.avro_spring.serde.Serializer;
  */
 public class CarSerDe {
 
-  private Serializer<Car> serializer = new AvroSerializer<>();
-  private Deserializer<Car> deserializer = new AvroDeserializer<>();
+  private AvroSerializer<Car> serializer;
+  private AvroDeserializer<Car> deserializer;
+
+  private final boolean useBinaryEncoding;
+  
+  public CarSerDe(boolean useBinaryEncoding) {
+    this.useBinaryEncoding = useBinaryEncoding;
+    serializer = new AvroSerializer<>(useBinaryEncoding);
+    deserializer = new AvroDeserializer<>(useBinaryEncoding);
+  }
+
+  public boolean isUseBinaryEncoding() {
+    return useBinaryEncoding;
+  }
 
   public Car deserialize(byte[] bytes) throws SerializationException {
     return deserializer.deserialize(Car.class, bytes);

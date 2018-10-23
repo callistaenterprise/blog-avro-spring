@@ -15,9 +15,11 @@
  */
 package se.callista.blog.avro_spring.serde;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.Arrays;
 import javax.xml.bind.DatatypeConverter;
+import org.apache.avro.Schema;
 import org.apache.avro.io.DatumReader;
 import org.apache.avro.io.Decoder;
 import org.apache.avro.io.DecoderFactory;
@@ -35,21 +37,35 @@ public class AvroDeserializer<T extends SpecificRecordBase> implements Deseriali
 
   private static final Logger LOGGER = LoggerFactory.getLogger(AvroDeserializer.class);
 
+  private final boolean useBinaryEncoding;
+  
+  public AvroDeserializer(boolean useBinaryEncoding) {
+    this.useBinaryEncoding = useBinaryEncoding;
+  }
+
+  public boolean isUseBinaryEncoding() {
+    return useBinaryEncoding;
+  }
+
   @Override
   public T deserialize(Class<? extends T> clazz, byte[] data) throws SerializationException {
     try {
       T result = null;
       if (data != null) {
-        LOGGER.debug("data='{}'", DatatypeConverter.printHexBinary(data));
-
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("data='{}' ({})", DatatypeConverter.printHexBinary(data), new String(data));
+        }
         Class<? extends SpecificRecordBase> specificRecordClass =
             (Class<? extends SpecificRecordBase>) clazz;
+        Schema schema = specificRecordClass.newInstance().getSchema();
         DatumReader<T> datumReader =
-            new SpecificDatumReader<>(specificRecordClass.newInstance().getSchema());
-        Decoder decoder = DecoderFactory.get().binaryDecoder(data, null);
+            new SpecificDatumReader<>(schema);
+        Decoder decoder = useBinaryEncoding ? DecoderFactory.get().binaryDecoder(data, null) : DecoderFactory.get().jsonDecoder(schema, new ByteArrayInputStream(data));;
 
         result = datumReader.read(null, decoder);
-        LOGGER.debug("deserialized data={}:{}", clazz.getName(), result);
+        if (LOGGER.isDebugEnabled()) {
+          LOGGER.debug("deserialized data={}:{}", clazz.getName(), result);
+        }
       }
       return result;
     } catch (InstantiationException | IllegalAccessException | IOException e) {

@@ -19,7 +19,7 @@ protocol CarProtocol {
 
   record Car {
     string VIN;
-    union { null, string } plateNumber;
+    union { null, string } plateNumber = null;
   }
 
 }
