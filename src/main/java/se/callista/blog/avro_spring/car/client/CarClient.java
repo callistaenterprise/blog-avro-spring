@@ -38,7 +38,7 @@ import se.callista.blog.avro_spring.car.avro.Car;
 @Component
 public class CarClient {
 
-  private static final MediaType APPLICATION_AVRO =
+  private static final MediaType APPLICATION_AVRO_JSON =
       new MediaType("application", "avro+json", Charset.forName("UTF-8"));
 
   @Autowired
@@ -46,7 +46,7 @@ public class CarClient {
 
   public Car getCar(String VIN) {
     HttpHeaders headers = new HttpHeaders();
-    headers.setAccept(Collections.singletonList(APPLICATION_AVRO));
+    headers.setAccept(Collections.singletonList(APPLICATION_AVRO_JSON));
     HttpEntity<Void> entity = new HttpEntity<>(headers);
 
     ResponseEntity<Car> result =
@@ -56,8 +56,8 @@ public class CarClient {
 
   public Car updateCar(String VIN, Car car) {
     HttpHeaders headers = new HttpHeaders();
-    headers.setAccept(Collections.singletonList(APPLICATION_AVRO));
-    headers.setContentType(APPLICATION_AVRO);
+    headers.setAccept(Collections.singletonList(APPLICATION_AVRO_JSON));
+    headers.setContentType(APPLICATION_AVRO_JSON);
     HttpEntity<Car> entity = new HttpEntity<>(car, headers);
 
     ResponseEntity<Car> result =

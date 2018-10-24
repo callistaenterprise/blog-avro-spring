@@ -47,10 +47,8 @@ public class ConverterConfig extends WebMvcConfigurerAdapter {
     // We need to add the AvroJsonHttpMessageConverter before any generic JSON converter,
     // since the pattern a generic JSON converter also may match. 
     RestTemplate restTemplate = builder.build();
-    List<HttpMessageConverter<?>> messageConverters = restTemplate.getMessageConverters();
-    messageConverters.add(0, new AvroJsonHttpMessageConverter<SpecificRecordBase>());
-    messageConverters.add(0, new AvroBinaryHttpMessageConverter<SpecificRecordBase>());
-    restTemplate.setMessageConverters(messageConverters);
+    restTemplate.getMessageConverters().add(0, new AvroJsonHttpMessageConverter<SpecificRecordBase>());
+    restTemplate.getMessageConverters().add(0, new AvroBinaryHttpMessageConverter<SpecificRecordBase>());
     return restTemplate;
   }
 

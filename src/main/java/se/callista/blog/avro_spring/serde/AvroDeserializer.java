@@ -60,7 +60,9 @@ public class AvroDeserializer<T extends SpecificRecordBase> implements Deseriali
         Schema schema = specificRecordClass.newInstance().getSchema();
         DatumReader<T> datumReader =
             new SpecificDatumReader<>(schema);
-        Decoder decoder = useBinaryEncoding ? DecoderFactory.get().binaryDecoder(data, null) : DecoderFactory.get().jsonDecoder(schema, new ByteArrayInputStream(data));;
+        Decoder decoder = useBinaryEncoding ?
+            DecoderFactory.get().binaryDecoder(data, null) :
+            DecoderFactory.get().jsonDecoder(schema, new ByteArrayInputStream(data));;
 
         result = datumReader.read(null, decoder);
         if (LOGGER.isDebugEnabled()) {
